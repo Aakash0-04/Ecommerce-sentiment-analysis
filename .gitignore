@@ -1,17 +1,20 @@
-# Python virtual env
-venv/
-
-# Python cache
+# Python
 __pycache__/
 *.pyc
 
-# Jupyter checkpoints
+# Virtual env
+venv/
+
+# Jupyter
 .ipynb_checkpoints/
 
-# System files
+# Data that should not go to GitHub (optional)
+Data/Raw/*
+*.log
+
+# OS / editor files
 .DS_Store
 Thumbs.db
 
-
-# Large artifacts
-*.log
+# Environment / secrets
+.env

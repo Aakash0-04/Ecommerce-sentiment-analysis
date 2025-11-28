@@ -1,201 +1,152 @@
-📦 End-to-End Sentiment Analysis Pipeline (Flipkart E-Commerce Reviews)
-Author: Aakash Jaiswal
-Tech Stack: Python, FastAPI, Scikit-Learn, NLTK, Pandas, Matplotlib, Imbalanced-Learn
+# E-commerce Review Sentiment Analysis (Flipkart – Samsung S24 & iPhone 15)
 
-🚀 Project Overview
+End-to-end NLP project to analyse Flipkart reviews for **Samsung Galaxy S24** and **iPhone 15**, generate **business insights**, and deploy a **sentiment prediction API** using FastAPI.
 
-This project is an end-to-end sentiment analysis pipeline built using real Flipkart reviews of:
+---
 
-1) Samsung S24
-2) iPhone 15
+## 🧱 Project Structure
 
-The pipeline covers:
-
-✔ Web-scraped dataset
-✔ Preprocessing & cleaning
-✔ Exploratory Data Analysis (EDA)
-✔ Sentiment labelling (based on rating)
-✔ Data balancing using undersampling
-✔ Model training & evaluation
-✔ Visualization dashboards
-✔ FastAPI endpoint for real-time predictions
-
--------------------------------------------------------------------------------------------------------------------------------------
-
-📁 Folder Structure
-
+```bash
 ECOM-- SENTIMENT/
 │
 ├── App/
-│   ├── main.py               # FastAPI sentiment prediction API
-│   └── model.pkl             # Trained ML model
+│   └── main.py                  # FastAPI app (loads model & serves /predict)
 │
 ├── Data/
-│   ├── Raw/                             # Raw scraped CSV files (positive + negative)
-│   ├── Processed/
-│   │      └── flipkart_model_ready.csv  # Processed dataset
-│   │
-│   └── EDA Charts/                      # Saved visualizations (.png)
+│   ├── Raw/                     # Raw CSVs (manually exported from Flipkart)
+│   └── Processed/
+│       ├── flipkart_cleaned.csv # Cleaned dataset
+│       └── EDA_Charts/          # Saved EDA plots
 │
 ├── Notebooks/
-│   ├── EDA.ipynb             # Exploratory Data Analysis + insights
-│   ├── Preprocessing.ipynb   # Cleaning, feature engineering, balancing
-│   └── Model_Training.ipynb  # ML model building & evaluation
+│   ├── EDA.ipynb                # Exploratory data analysis & insights
+│   ├── Preprocessing.ipynb      # Cleaning, feature engineering, balancing
+│   └── Model_Training.ipynb     # Model training & evaluation
 │
 ├── Src/
-│   └── preprocess_flipkart.ipynb   # Initial version of preprocessing
+│   ├── preprocess_flipkart.ipynb# Early experiments / scratch work
+│   └── model.pkl                # Trained Logistic Regression model (TF-IDF)
 │
-├── venv/                     # Virtual environment
+├── Reports/
+│   └── Insight_Report.pdf       # Business-facing insight report
 │
-├── requirements.txt          # Python dependencies
-│
-└── README.md                 # Project documentation (this file)
+├── Dockerfile                   # Container definition (not runnable on my HW)
+├── requirements.txt             # Python dependencies
+└── README.md
 
+📊 Dataset & Labelling
 
--------------------------------------------------------------------------------------------------------------------------------------
+Reviews manually collected from Flipkart using a browser extension
+Products: Samsung Galaxy S24 and iPhone 15
+Initial dataset was heavily positive, so:
+Added extra negative reviews manually
+Then balanced using oversampling / undersampling
 
-📊 Dataset Summary
+Sentiment rules (rating-based):
 
-| Product     | Count        |
-| ----------- | ------------ |
-| Samsung S24 | ~700 reviews |
-| iPhone 15   | ~650 reviews |
+rating >= 4 → positive
+rating <= 2 → negative
+rating == 3 → neutral (used for EDA, removed for model training)
 
-Sentiment Rules
+🔍 Key Insights (from EDA)
 
-Positive: rating ≥ 4
-Negative: rating ≤ 2
-Neutral: rating = 3
+Some highlights (full details in Reports/Insight_Report.pdf):
 
-Imbalance Issue
+1. Strong Positive Bias
 
-Raw data was heavily positive biased, so the following were applied:
-✔ Undersampling (RandomUnderSampler)
+Majority of reviews are positive; negative reviews are much fewer.
 
--------------------------------------------------------------------------------------------------------------------------------------
+2. Top Complaints
 
-📈 Key Insights (Business-Focused)
+Heating + battery drain are common for both phones.
 
-⭐ 1. Overall Sentiment
+A few users complain about lag / performance in heavy usage.
 
-Majority reviews are positive, indicating strong customer satisfaction.
-Negative reviews mainly highlight:
-Heating issues
-Battery drain
-Delivery or quality problems
+3. Top Praises
 
-⭐ 2. Battery & Camera Drive Reviews
+Camera and display are the most appreciated aspects.
 
-WordCloud shows camera, battery, display, performance dominate both positive & negative reviews.
-Battery drain is the top negative complaint.
+4. Review Length vs Sentiment
 
-⭐ 3. Review Length vs Sentiment
+Negative reviews tend to be slightly longer, users explain problems.
 
-Neutral reviews have the longest average word count.
-Negative reviews are more direct and short
+5. Verified Buyers
 
-⭐ 4. Helpful Upvotes
+Verified purchase reviews are more detailed and carry more negative signals (more honest feedback).
 
-Positive reviews get significantly more helpful upvotes, meaning people trust them more.
+EDA charts are saved in: Data/Processed/EDA_Charts.
 
-⭐ 5. Samsung S24 vs iPhone 15
+🤖 Model
 
-Both products have strong positive sentiment.
-iPhone reviews include more mentions of:
-camera quality
-premium feel
-Samsung reviews emphasize:
-display
-battery performance
+Vectorizer: TfidfVectorizer
+Classifier: LogisticRegression
+Training done on the balanced dataset (positive vs negative).
 
--------------------------------------------------------------------------------------------------------------------------------------
+On the balanced test set:
 
-🤖 Model Training
+Accuracy ≈ 84%
+Similar precision/recall for both classes
+Confusion matrix image saved as:
+Data/Processed/EDA_Charts/confusion_matrix_balanced.png
 
-Final Metrics (Balanced Dataset)
+png
 
-Accuracy: ~87%
-Precision: 0.84 – 0.86
-Recall: 0.84 – 0.85
-F1-Score: ~0.85
+🚀 FastAPI Inference Service
 
-Confusion Matrix (Balanced)
+The API is implemented in App/main.py.
 
-You can include your saved image
-
-![](Data/Processed/confusion_matrix_balanced.png)
-
--------------------------------------------------------------------------------------------------------------------------------------
-
-🧪 API Endpoint (FastAPI)
-
-Start the server:
-uvicorn App.main:app --reload
-Open:
-http://127.0.0.1:8000/docs
-
-Example Request
-POST /predict
-{
-  "review_text": "The camera heats too much and battery drains fast."
-}
-
-Example Response
-{
-  "review_text": "...",
-  "clean_text": "...",
-  "predicted_sentiment": "negative"
-}
-
--------------------------------------------------------------------------------------------------------------------------------------
-
-🛠 Installation Instructions
-
-1️⃣ Create virtual environment
-python -m venv venv
-
-2️⃣ Activate venv
-venv\Scripts\activate
-
-3️⃣ Install dependencies
+1. Install dependencies
 pip install -r requirements.txt
 
-4️⃣ Run FastAPI
+2. Activate virtual environment (if not already)
+.\venv\Scripts\activate
+
+3. Run the API
+From the project root:
 uvicorn App.main:app --reload
+API root: http://127.0.0.1:8000
 
--------------------------------------------------------------------------------------------------------------------------------------
+Swagger UI: http://127.0.0.1:8000/docs
 
-📄 Included Visualizations
+4. Example request (Swagger sample)
+{
+  "review_text": "The phone heats up too quickly and the battery drains very fast. Worst experience ever."
+}
+Response:
+{
+  "review_text": "...",
+  "clean_text": "phone heat quickly battery drain fast worst experience ever",
+  "predicted_sentiment": "negative"
+}
+More tested examples are shown in the screenshots in the Insight report
 
-The project contains:
+⚠️ Limitations
 
-Sentiment distribution
-Rating distribution
-WordCloud
-Verified vs not-verified sentiment
-Product-wise sentiment comparison
-Helpful upvotes box-plot
-Review length vs sentiment
+Data is limited to Flipkart reviews for two specific phones.
 
-Confusion matrix
-Data/Processed/
+Negative reviews are partly manually curated, not purely scraped.
 
--------------------------------------------------------------------------------------------------------------------------------------
+No aspect-wise sentiment (battery, camera, delivery, etc.) yet.
 
-📝 Final Deliverables
+API is running locally, not deployed to cloud.
 
-✔ Raw scraped dataset
-✔ Cleaned & processed dataset
-✔ EDA notebook
-✔ ML training notebook
-✔ Metrics + confusion matrix
-✔ Insight report (this README)
-✔ FastAPI working endpoin
+Dockerfile is present but not tested due to hardware constraints.
 
--------------------------------------------------------------------------------------------------------------------------------------
+🔮 Future Work
 
-Limitations & Future Work
+Host FastAPI app on Render / Railway / AWS.
 
-Limited number of negative reviews → used SMOTE + undersampling to balance.
-Data only from Flipkart (Samsung S24 & iPhone 15) → model biased to high-end phones.
-Could try transformer models (BERT) in the future.
+Replace Logistic Regression with BERT-based transformer model.
+
+Do aspect-based sentiment (battery vs camera vs delivery).
+
+Add a simple Streamlit / React dashboard that calls the API.
+
+👤 Author
+
+Aakash Jaiswal
+
+GitHub: Aakash0-04
+
+Email: aakash041111@gmail.com
+
